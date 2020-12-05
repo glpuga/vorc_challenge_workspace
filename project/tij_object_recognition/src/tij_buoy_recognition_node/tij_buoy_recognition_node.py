@@ -162,9 +162,6 @@ class BuoyRecognitionNode(object):
         self._border_reduction_kernel_size = rospy.get_param(
             "~border_reduction_kernel_size", 7)
 
-        self._buoy_location_tolerance = rospy.get_param(
-            "~buoy_location_tolerance", 1)
-
         self._map_frame_id = rospy.get_param(
             "~map_frame_id", "cora/odom")
 
@@ -294,17 +291,17 @@ class BuoyRecognitionNode(object):
     def _check_if_objecs_is_already_known(self, new_entry):
        # walk through the elemets known to see if they match in the same location
         def distance_between_map_locations(p1, p2):
+            # Don't measure distance in z, since that's height
             distance = np.sqrt((p1.x - p2.x)**2 +
-                               (p1.y - p2.y)**2 + (p1.z - p2.z)**2)
+                               (p1.y - p2.y)**2)
             return distance
         new_entry_location = new_entry["location_in_world"]
         for _, known_object in self._known_objects.items():
             known_entry_location = known_object.get_location()
             distance = distance_between_map_locations(
                 new_entry_location, known_entry_location)
-            if (distance < self._buoy_location_tolerance):
+            if (distance < new_entry["object_width"]):
                 known_object.add_positive_observation(new_entry["object_type"])
-                rospy.logerr(new_entry["object_type"])
                 return True
         return False
 
