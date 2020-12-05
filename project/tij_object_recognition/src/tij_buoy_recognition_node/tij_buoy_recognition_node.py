@@ -359,6 +359,8 @@ class BuoyRecognitionNode(object):
             len(self._known_objects)))
 
         detections_array_msg = DetectionDataArray()
+        detections_array_msg.header.stamp = rospy.Time.now()
+        detections_array_msg.header.frame_id = self._map_frame_id
 
         for det_id, known_object in self._known_objects.items():
             classification = known_object.get_most_likely_classification()
