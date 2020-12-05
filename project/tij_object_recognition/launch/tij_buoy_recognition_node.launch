@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+	<arg name="camera_input_image_raw_topic_arg" default="/cora/sensors/cameras/front_left_camera/image_raw" />
+	<arg name="camera_input_camera_info_topic_arg" default="/cora/sensors/cameras/front_left_camera/camera_info" />
+	<arg name="tagged_image_output_topic_arg" default="/tij/camera/tagged_image" />
+	<arg name="canny_threshold_min_arg" default="300" />
+	<arg name="canny_threshold_max_arg" default="400" />
+	<!--  -->
+	<node pkg="tij_object_recognition" type="tij_buoy_recognition_node.py" name="tij_buoy_detection_node" output="screen" respawn="true" launch-prefix="xterm -e">
+		<param name="buoy_color_samples_database_file" value="$(find tij_object_recognition)/data/data_samples_opencv.csv" />
+		<!--  -->
+		<param name="camera_input_image_raw_topic" value="$(arg camera_input_image_raw_topic_arg)" />
+		<param name="camera_input_camera_info_topic" value="$(arg camera_input_camera_info_topic_arg)" />
+		<param name="tagged_image_output_topic" value="$(arg tagged_image_output_topic_arg)" />
+		<param name="canny_threshold_min" value="$(arg canny_threshold_min_arg)" />
+		<param name="canny_threshold_max" value="$(arg canny_threshold_max_arg)" />
+	</node>
+</launch>

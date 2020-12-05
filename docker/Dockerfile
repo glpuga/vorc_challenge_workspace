@@ -41,8 +41,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt clean
 
 # Get ROS melodic and Gazebo 9.
-COPY docker/keys/gazebo.key /tmp/gazebo.key
-COPY docker/keys/ros.key /tmp/ros.key
+COPY keys/gazebo.key /tmp/gazebo.key
+COPY keys/ros.key /tmp/ros.key
 RUN /bin/sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
  && apt-key add /tmp/ros.key \
  && /bin/sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" > /etc/apt/sources.list.d/gazebo-stable.list' \
@@ -71,6 +71,10 @@ RUN /bin/sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) 
     ros-${DIST}-velodyne-simulator \
     ros-${DIST}-rqt \
     ros-${DIST}-rqt-common-plugins \
+    ros-${DIST}-move-base \
+    ros-${DIST}-teb-local-planner \
+    ros-${DIST}-dwa-local-planner \
+    ros-${DIST}-geodesy \
  && rosdep init \
  && apt clean
 
@@ -101,33 +105,35 @@ RUN addgroup --gid 1000 $USER && \
 RUN adduser $USER sudo \
  && echo "$USER ALL=NOPASSWD: ALL" >> /etc/sudoers.d/$USER
 
+RUN mkdir -p /home/$USER/challenge_ws/src \
+ && chown -R $USER: home/$USER/challenge_ws
+
+ # Extra tools
+RUN apt update \
+ && apt install -y \
+        locate \
+        xterm \
+        tmux \
+        ros-${DIST}-image-proc \
+        ros-${DIST}-vision-opencv \
+ && apt clean 
+
 # Commands below run as the developer user.
 USER $USER:$GROUP
 
 # When running a container start in the developer's home folder.
 WORKDIR /home/$USER
 
-# Create workspace
-RUN mkdir -p vrx_ws/src/vrx
-
-# Copy the VRX repository from the local file system
-# We can't use the USER:GROUP variables until Docker adds support to --chown
-COPY --chown=developer:developer . vrx_ws/src/vrx/
-
-# Compile the VRX project.
-RUN /bin/bash -c ". /opt/ros/${DIST}/setup.bash && cd vrx_ws && catkin_make"
-
 # Source all the needed environment files.
 RUN /bin/sh -c 'echo ". /opt/ros/${DIST}/setup.bash" >> ~/.bashrc' \
  && /bin/sh -c 'echo ". /usr/share/gazebo/setup.sh" >> ~/.bashrc' \
- && /bin/sh -c 'echo ". ~/vrx_ws/devel/setup.sh" >> ~/.bashrc'
+ && /bin/sh -c 'echo "export ROS_IP=192.168.10.179" >> ~/.bash_history' \
+ && /bin/sh -c 'echo "export ROS_MASTER_URI=http://192.168.10.10:11311" >> ~/.bash_history' \
+ && /bin/sh -c 'echo "export ROS_IP=192.168.10.10" >> ~/.bash_history' \
+ && /bin/sh -c 'echo "set-option -g default-shell /bin/bash" >> ~/.tmux.conf'
+
+WORKDIR /home/$USER/challenge_ws
 
 ENTRYPOINT ["fixuid"]
 
 CMD ["/bin/bash"]
-
-
-# Customize your image here.
-# ...
-
-

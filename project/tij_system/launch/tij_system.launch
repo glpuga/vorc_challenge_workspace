@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find tij_navigation)/launch/tij_navigation.launch" />
+	<include file="$(find tij_station_keeping_control)/launch/tij_station_keeping_control.launch" />
+	<include file="$(find tij_utils)/launch/marina_static_reference_pose.launch" />
+	<include file="$(find tij_object_recognition)/launch/tij_buoy_recognition_node.launch" />
+	<include file="$(find tij_engine_controller)/launch/tij_engine_controller.launch" />
+	<include file="$(find tij_acoustic_beacon_localization)/launch/tij_acoustic_beacon_localization.launch" />
+</launch>

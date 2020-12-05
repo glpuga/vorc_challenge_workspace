@@ -1,0 +1,15 @@
+#TODO probably it would make more sense to create a map frame, even if statically joined to odom
+global_frame: cora/odom
+robot_base_frame: cora/base_link
+# Max range that will cause a laser impact to be added to the costmap
+obstacle_range: 110
+# Distance that gets raytraced to probe for the absense of obstacles
+raytrace_range: 30.0
+# Vehicle footprint
+#footprint: [[6.5,0], [3.5,-2.5], [0,-2.5], [-6.5,-2.5], [-6.5,2.5], [0,2.5], [3.5,2.5]]
+footprint: [[4, 4], [-4, 4], [-4, -4], [4, -4]]
+# Observation sources
+observation_sources: laser_scan_sensor
+# Laser scan source configuration
+laser_scan_sensor: {data_type: PointCloud2, topic: /cora/sensors/lidars/front_lidar/points, marking: true, clearing: true}
+inflation_radius: 20

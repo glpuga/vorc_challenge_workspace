@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="-31409.1058905 2525440.31044 0 0 0 0 1 cora/odom marina/ref 10" />
+</launch>

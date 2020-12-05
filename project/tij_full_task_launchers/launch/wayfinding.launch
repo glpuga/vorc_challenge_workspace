@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find vorc_gazebo)/launch/wayfinding.launch" />
+	<include file="$(find tij_system)/launch/tij_system.launch" />
+	<include file="$(find tij_game_master)/launch/tij_game_master.launch" />
+</launch>

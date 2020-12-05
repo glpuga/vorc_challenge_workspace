@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="tij_station_keeping_control" type="tij_station_keeping_control.py" name="tij_station_keeping_control"
+	      respawn="true" output="screen" launch-prefix="xterm -e">
+	</node>
+</launch>

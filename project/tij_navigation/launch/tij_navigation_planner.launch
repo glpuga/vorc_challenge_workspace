@@ -1,0 +1,11 @@
+<launch>
+	<node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen" launch-prefix="xterm -e" >
+		<rosparam file="$(find tij_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find tij_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find tij_navigation)/config/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find tij_navigation)/config/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(find tij_navigation)/config/base_local_planner_params.yaml" command="load" />
+		<rosparam param="base_local_planner">"teb_local_planner/TebLocalPlannerROS"</rosparam>
+		<remap from="/cmd_vel" to="/cora/cmd_vel" />
+	</node>
+</launch>

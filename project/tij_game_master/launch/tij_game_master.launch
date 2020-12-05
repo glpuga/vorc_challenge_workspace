@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+	<node pkg="tij_game_master" type="tij_game_master_node.py" name="tij_game_master_node" output="screen" respawn="true" launch-prefix="">
+	</node>
+</launch>

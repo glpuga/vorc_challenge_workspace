@@ -74,11 +74,11 @@ then
     chmod a+r $XAUTH
 fi
 
-REPO_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../../" >/dev/null 2>&1 && pwd )"
+REPO_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" >/dev/null 2>&1 && pwd )"
 
 #DOCKER_OPTS=
 # Example: Bind mount a local repository on the host machine:
-DOCKER_OPTS="--mount type=bind,source=${REPO_PATH},target=/home/developer/vrx_ws/src/"
+DOCKER_OPTS="--mount type=bind,source=${REPO_PATH},target=/home/developer/challenge_ws/src/workspace"
 
 
 # Share your vim settings.
