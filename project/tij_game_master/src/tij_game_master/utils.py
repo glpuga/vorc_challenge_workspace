@@ -4,10 +4,14 @@ import rospy
 
 from tf.transformations import quaternion_matrix
 
+from geographic_msgs.msg import GeoPoseStamped
 from geometry_msgs.msg import PoseStamped
+
 from actionlib import GoalStatusArray
 from actionlib import GoalStatus
 from geodesy.utm import fromMsg
+from geodesy.utm import gridZone
+from geodesy.utm import UTMPoint
 
 
 def wgs84_to_utm_pose(wgs84_pose):
@@ -17,6 +21,23 @@ def wgs84_to_utm_pose(wgs84_pose):
     pose.pose.position = fromMsg(wgs84_pose.pose.position).toPoint()
     pose.pose.orientation = wgs84_pose.pose.orientation
     return pose
+
+
+def utm_to_wgs84_pose(utm_pose, vehicle_gps_fix):
+    zone, band = gridZone(vehicle_gps_fix.latitude,
+                          vehicle_gps_fix.longitude)
+    utm_point = UTMPoint(
+        utm_pose.pose.position.x,
+        utm_pose.pose.position.y,
+        utm_pose.pose.position.z,
+        zone, band)
+
+    geo_pose = GeoPoseStamped()
+    geo_pose.header.stamp = utm_pose.header.stamp
+    geo_pose.header.frame_id = "wgs84"
+    geo_pose.pose.position = utm_point.toMsg()
+    geo_pose.pose.orientation = utm_pose.pose.orientation
+    return geo_pose
 
 
 def get_xy_normals_from_quaternion(orientation_quaternion):

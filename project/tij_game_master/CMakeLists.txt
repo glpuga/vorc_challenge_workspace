@@ -9,8 +9,10 @@ project(tij_game_master)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  geographic_msgs
   geodesy
   rospy
+  sensor_msgs
   std_msgs
   tf2
   vrx_gazebo
