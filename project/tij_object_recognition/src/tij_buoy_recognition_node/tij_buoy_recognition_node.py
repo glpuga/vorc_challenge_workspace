@@ -153,7 +153,9 @@ class BuoyRecognitionNode(object):
             "~depth_sensor_clustering_range", 1.0)
 
         self._max_perception_reach = rospy.get_param(
-            "~max_perception_reach", 40)
+            "~max_perception_reach", 100)
+        self._max_classification_reach = rospy.get_param(
+            "~max_classification_reach", 40)
 
         self._canny_threshold_min = rospy.get_param(
             "~canny_threshold_min", 100)
@@ -300,8 +302,11 @@ class BuoyRecognitionNode(object):
             known_entry_location = known_object.get_location()
             distance = distance_between_map_locations(
                 new_entry_location, known_entry_location)
-            if (distance < new_entry["object_width"]):
-                known_object.add_positive_observation(new_entry["object_type"])
+            identity_distance = max(1.0, new_entry["object_width"])
+            if (distance < identity_distance):
+                if (new_entry["z_distance"] < self._max_classification_reach):
+                    known_object.add_positive_observation(
+                        new_entry["object_type"])
                 return True
         return False
 
@@ -310,8 +315,9 @@ class BuoyRecognitionNode(object):
         self._next_known_object_id += 1
         self._known_objects[next_index] = PhysicalBuoy(
             new_entry["location_in_world"])
-        self._known_objects[next_index].add_positive_observation(
-            new_entry["object_type"])
+        if new_entry["z_distance"] < self._max_classification_reach:
+            self._known_objects[next_index].add_positive_observation(
+                new_entry["object_type"])
 
     def _match_known_objects_to_image(self, camera_detection_data, camera_frame_id, image_timestamp):
         contours, rectangles, areas, rgb_colors, hsv_colors = camera_detection_data
