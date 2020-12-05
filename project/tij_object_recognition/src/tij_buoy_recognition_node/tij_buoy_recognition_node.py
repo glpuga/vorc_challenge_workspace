@@ -163,7 +163,7 @@ class BuoyRecognitionNode(object):
             "~border_reduction_kernel_size", 7)
 
         self._buoy_location_tolerance = rospy.get_param(
-            "~buoy_location_tolerance", 2)
+            "~buoy_location_tolerance", 1)
 
         self._map_frame_id = rospy.get_param(
             "~map_frame_id", "cora/odom")
