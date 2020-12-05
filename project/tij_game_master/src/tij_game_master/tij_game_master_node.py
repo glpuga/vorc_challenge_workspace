@@ -6,7 +6,7 @@ from vrx_gazebo.msg import Task
 
 from station_keeping import StationKeepingTaskManager
 from wayfinding import WayfindingTaskManager
-
+from perception import PerceptionTaskManager
 
 class DummyTaskManager(object):
     def __init__(self):
@@ -22,7 +22,6 @@ class DummyTaskManager(object):
         pass
 
 
-PerceptionTaskManager = DummyTaskManager
 GymkhanaTaskManager = DummyTaskManager
 
 

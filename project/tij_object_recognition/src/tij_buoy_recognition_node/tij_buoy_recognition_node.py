@@ -24,6 +24,8 @@ from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import PointCloud2
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
+from tij_object_recognition.msg import DetectionData
+from tij_object_recognition.msg import DetectionDataArray
 
 
 class PhysicalBuoy:
@@ -138,6 +140,8 @@ class BuoyRecognitionNode(object):
                                                        "/cora/sensors/lidars/front_lidar/points")
         self._buoy_markers_topic = rospy.get_param("~buoy_markers_topic",
                                                    "/tij/objects/markers")
+        self._detection_array_topic = rospy.get_param("~detection_array_topic",
+                                                      "/tij/detections/detection_array")
 
         self._buoy_color_samples_database_file = rospy.get_param("~buoy_color_samples_database_file",
                                                                  "samples.csv")
@@ -164,6 +168,8 @@ class BuoyRecognitionNode(object):
         self._map_frame_id = rospy.get_param(
             "~map_frame_id", "cora/odom")
 
+        self._next_known_object_id = 0
+
         # don't let anything uninitialized
         self._image_mask = None
         self._laser_detected_objects = None
@@ -177,9 +183,11 @@ class BuoyRecognitionNode(object):
 
         # publishers
         self._tagged_image_output_pub = rospy.Publisher(
-            self._tagged_image_output_topic, Image, queue_size=1)
+            self._tagged_image_output_topic, Image, queue_size=10)
         self._marker_publisher = rospy.Publisher(
-            self._buoy_markers_topic, MarkerArray, queue_size=1)
+            self._buoy_markers_topic, MarkerArray, queue_size=10)
+        self._detection_array_pub = rospy.Publisher(
+            self._detection_array_topic, DetectionDataArray, queue_size=10)
 
         # subscribers
         self._image_raw_sub = rospy.Subscriber(
@@ -301,7 +309,8 @@ class BuoyRecognitionNode(object):
         return False
 
     def _insert_new_object_in_database(self, new_entry):
-        next_index = max(self._known_objects.keys() + [0]) + 1
+        next_index = self._next_known_object_id
+        self._next_known_object_id += 1
         self._known_objects[next_index] = PhysicalBuoy(
             new_entry["location_in_world"])
         self._known_objects[next_index].add_positive_observation(
@@ -348,16 +357,36 @@ class BuoyRecognitionNode(object):
             return
         rospy.loginfo("There are {} objects that have been located".format(
             len(self._known_objects)))
-        for _, known_object in self._known_objects.items():
+
+        detections_array_msg = DetectionDataArray()
+
+        for det_id, known_object in self._known_objects.items():
             classification = known_object.get_most_likely_classification()
+
+            detection_msg = DetectionData()
+            detection_msg.id = det_id
+            detection_msg.location = known_object.get_location()
+
             location_str = " ".join(str(known_object.get_location()).split())
             if classification:
                 category, probability = classification
+
+                detection_msg.classified = True
+                detection_msg.probability = probability
+                detection_msg.category = category
+
                 rospy.loginfo("  - category: {:20s} - probability: {:5.2f} - location: {:30s}".format(
                     category, probability, location_str))
             else:
+                detection_msg.classified = False
+                detection_msg.probability = 0.0
+                detection_msg.category = ""
+
                 rospy.loginfo(
                     "  - category: {:20s} - probability: {:5.2f} - location: {:30s}".format("UNKNOWN", 0.0, location_str))
+
+            detections_array_msg.detections.append(detection_msg)
+        self._detection_array_pub.publish(detections_array_msg)
 
     def _process_objects_known_and_new(self, objects_found_data, camera_detections_data, camera_frame_id, image_timestamp):
         for new_entry in objects_found_data:
@@ -394,7 +423,6 @@ class BuoyRecognitionNode(object):
         # Create the mask only once, then reuse
         for cnt, rect in zip(contours, rectangles):
             x, y, w, h = rect
-            xc, yc = x + w/2, y + h/2
             # mark the visual detection in the output image
             cv.rectangle(output_cv_image, (x, y), (x+w, y+h), (255, 0, 0), 1)
             cv.drawContours(output_cv_image, [cnt], -1, (0, 255, 0), 2)
