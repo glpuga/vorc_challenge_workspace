@@ -31,7 +31,7 @@ class PerceptionTaskManager(object):
         self._objects_published = set()
         self._running_stage_on = False
         
-        self._probability_threshold = 0.8
+        self._probability_threshold = 0.5
         self._current_nav_sat_fix = None
 
         # publishers
@@ -74,6 +74,8 @@ class PerceptionTaskManager(object):
                 if detection_data.classified and detection_data.probability > self._probability_threshold:
                     self._publish_detection(detection_data, frame, stamp)
                     self._objects_published.add(detection_data.id)
+                else:
+                    rospy.logwarn("Removing detection from publication because of lack of certainty")
 
     def _publish_detection(self, detection_data, detection_frame, detection_stamp):
         source_detection_point = PointStamped()
