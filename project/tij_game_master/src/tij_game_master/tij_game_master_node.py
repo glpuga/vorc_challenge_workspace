@@ -7,6 +7,8 @@ from vrx_gazebo.msg import Task
 from station_keeping import StationKeepingTaskManager
 from wayfinding import WayfindingTaskManager
 from perception import PerceptionTaskManager
+from gymkhana import GymkhanaTaskManager
+
 
 class DummyTaskManager(object):
     def __init__(self):
@@ -20,9 +22,6 @@ class DummyTaskManager(object):
 
     def transitioned_to_finished(self):
         pass
-
-
-GymkhanaTaskManager = DummyTaskManager
 
 
 class GameMasterNode(object):
@@ -60,13 +59,13 @@ class GameMasterNode(object):
             self._current_task_state = task_state
             self._transition_to_state(task_name, task_state)
 
-        rospy.loginfo("Task message received:")
-        rospy.loginfo("  - Task name     : {}".format(task_name))
-        rospy.loginfo("  - Task state    : {}".format(task_state))
-        rospy.loginfo("  - Ready time    : {}".format(task_ready_time))
-        rospy.loginfo("  - Running time  : {}".format(task_running_time))
-        rospy.loginfo("  - Elapsed time  : {}".format(task_elapsed_time))
-        rospy.loginfo("  - Current score : {:.2f}".format(task_current_score))
+        # rospy.loginfo("Task message received:")
+        # rospy.loginfo("  - Task name     : {}".format(task_name))
+        # rospy.loginfo("  - Task state    : {}".format(task_state))
+        # rospy.loginfo("  - Ready time    : {}".format(task_ready_time))
+        # rospy.loginfo("  - Running time  : {}".format(task_running_time))
+        # rospy.loginfo("  - Elapsed time  : {}".format(task_elapsed_time))
+        # rospy.loginfo("  - Current score : {:.2f}".format(task_current_score))
 
     def _instantiate_task_manager(self, task_name):
         if not self._task_manager_catalog.has_key(task_name):
