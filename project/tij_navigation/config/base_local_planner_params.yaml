@@ -52,4 +52,7 @@ TebLocalPlannerROS:
   min_obstacle_dist: 0
   dt_ref: 0.5
   dt_hysteresis: 0.1
+  #weight_optimal_time: 0.001
+  #weight_kinematics_forward_drive: 0.01
+  #allow_init_with_backwards_motion: true
   
