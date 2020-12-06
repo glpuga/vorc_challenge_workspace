@@ -139,7 +139,7 @@ class BuoyRecognitionNode(object):
         self._point_cloud_data_topic = rospy.get_param("~pointcloud_data",
                                                        "/cora/sensors/lidars/front_lidar/points")
         self._buoy_markers_topic = rospy.get_param("~buoy_markers_topic",
-                                                   "/tij/detections/markers")
+                                                   "/tij/markers/buoys")
         self._detection_array_topic = rospy.get_param("~detection_array_topic",
                                                       "/tij/detections/detection_array")
 
@@ -417,10 +417,13 @@ class BuoyRecognitionNode(object):
             m.pose.position = loc
             m.pose.orientation.w = 1.0
             m.scale = Vector3(x=1, y=1, z=1)
-            m.color = ColorRGBA(0, 1.0, 0, 1.0)
             m.lifetime = rospy.Duration(1.0)
             m.frame_locked = True
             marray.markers.append(m)
+            if known_object.get_most_likely_classification() is None:
+                m.color = ColorRGBA(1.0, 0.0, 0, 1.0)
+            else:
+                m.color = ColorRGBA(0, 1.0, 0, 1.0)
         self._marker_publisher.publish(marray)
 
     def _tag_image_detections_on_output_image(self, output_cv_image, camera_detections_data):

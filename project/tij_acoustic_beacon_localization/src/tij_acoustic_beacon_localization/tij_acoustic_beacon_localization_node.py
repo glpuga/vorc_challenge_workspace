@@ -77,14 +77,14 @@ class BlackBoxLocationNode(object):
         m.header.frame_id = self._world_frame
         m.ns = "tij"
         m.id = 0
-        m.type = Marker.CYLINDER
+        m.type = Marker.SPHERE
         m.action = Marker.MODIFY
         m.pose.position.x = point_in_world.point.x
         m.pose.position.y = point_in_world.point.y
         m.pose.position.z = 5
         m.pose.orientation.w = 1.0
         m.scale = Vector3(x=2, y=2, z=10)
-        m.color = ColorRGBA(1.0, 0.0, 0, 1.0)
+        m.color = ColorRGBA(0.0, 0.0, 1.0, 1.0)
         m.lifetime = rospy.Duration(3.0)
         m.frame_locked = True
         self._black_box_marker_pub.publish(m)

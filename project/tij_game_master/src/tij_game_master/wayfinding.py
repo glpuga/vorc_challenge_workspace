@@ -34,6 +34,9 @@ class WayfindingTaskManager(object):
         self._currently_executing_plan = False
         self._move_base_observer = MoveBaseObserver()
 
+        # These would improve behavior, if only the planner were better tuned for backwards motion
+        self._use_entry_waypoints = False
+
         # publishers
         self._move_base_simple_goal_pub = rospy.Publisher(
             self._move_base_simple_goal_topic, PoseStamped, queue_size=10)
@@ -76,8 +79,11 @@ class WayfindingTaskManager(object):
 
     def _plan_path(self):
         utm_ordered_goals = self._sort_by_distance(self._utm_waypoints)
-        self._utm_path = self._decorate_path_with_entry_waypoints(
-            utm_ordered_goals)
+        if self._use_entry_waypoints:
+            self._utm_path = self._decorate_path_with_entry_waypoints(
+                utm_ordered_goals)
+        else:
+            self._utm_path = utm_ordered_goals
 
     def _timer_callback(self, event):
         if not self._enable_path_tracer:
