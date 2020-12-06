@@ -38,10 +38,18 @@ class StationKeepingControl(object):
         self._move_base_status_topic = rospy.get_param(
             "move_base_status_topic", "/move_base/status")
 
+        self._use_algoritm_1 = False
+
+        # Algorithm 1 parameters
         self._distance_correction_speed = rospy.get_param(
             "distance_correction_speed", 1.0)
         self._heading_correction_speed = rospy.get_param(
             "heading_correction_speed", 0.2)
+
+        # Algorithm 2 parameters
+        self._alg2_heading_control_threshold = 4.0
+        self._alg2_angular_correction_speed = 0.2
+        self._alg2_linear_correction_gain = 0.02
 
         # publishers
         self._cmd_vel_pub = rospy.Publisher(
@@ -52,6 +60,7 @@ class StationKeepingControl(object):
         self._move_base_status_sub = rospy.Subscriber(
             self._move_base_status_topic, GoalStatusArray, self._move_base_status_callback)
         # control loop timer
+        #self._control_timer = rospy.Timer(rospy.Duration(0.1), self._timer_callback_2)
         self._control_timer = rospy.Timer(
             rospy.Duration(0.1), self._timer_callback)
 
@@ -130,6 +139,12 @@ class StationKeepingControl(object):
         return Point(x=pose.point.x, y=pose.point.y, z=pose.point.z)
 
     def _timer_callback(self, _):
+        if self._use_algoritm_1:
+            self._station_keeping_algorithm_1()
+        else:
+            self._station_keeping_algorithm_2()
+
+    def _station_keeping_algorithm_1(self):
         if not self._station_keeping_is_enabled or not self._framing_box_corners:
             return
 
@@ -191,6 +206,43 @@ class StationKeepingControl(object):
             angular_speed
         )
 
+    def _station_keeping_algorithm_2(self):
+        if not self._station_keeping_is_enabled or not self._target_center_pose:
+            return
+
+        try:
+            local_target_point = self._convert_position_to_local_frame(
+                self._target_pose_frame, self._target_center_pose)
+        except Exception as e:
+            rospy.logerr("Error converting from %s to %s: %s" %
+                         (self._target_pose_frame, self._base_link_frame, e))
+            return
+
+        def distance(v):
+            return math.sqrt(v.x**2 + v.y**2)
+
+        distance_to_target = distance(local_target_point)
+
+        distance_error = local_target_point.x
+        heading_error = math.atan2(
+            local_target_point.y, np.abs(local_target_point.x))
+
+        lineal_speed = 0.0
+        angular_speed = 0.0
+
+        if math.fabs(distance_to_target) > self._alg2_heading_control_threshold:
+            angular_speed = self._alg2_angular_correction_speed * \
+                (1.0 if heading_error > 0 else -1.0)
+        lineal_speed = self._alg2_linear_correction_gain * distance_error
+
+        rospy.loginfo("Linear speed command: %f" % (lineal_speed))
+        rospy.loginfo("Angular speed command: %f" % (angular_speed))
+
+        self._command_controller(
+            lineal_speed,
+            angular_speed
+        )
+
     def _command_controller(self, lineal, angular):
         msg = Twist()
         msg.linear.x = lineal
@@ -198,8 +250,6 @@ class StationKeepingControl(object):
         self._cmd_vel_pub.publish(msg)
 
     def run(self):
-        # TODO Improve. This is to skip the localization transient on startup.
-        rospy.sleep(20.0)
         rospy.spin()
 
 

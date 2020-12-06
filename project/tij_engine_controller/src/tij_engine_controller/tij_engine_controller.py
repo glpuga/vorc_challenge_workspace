@@ -44,7 +44,7 @@ class ThrottleControlNode(object):
         self._latest_command_timestamp = rospy.Time.now()
 
         # initialize controller state
-        self._controller_enabled = False
+        self._controller_enabled = True
         self._state_timestamp = None
         self._reset_control_setpoints()
 
