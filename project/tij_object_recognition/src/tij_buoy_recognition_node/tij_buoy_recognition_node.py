@@ -576,12 +576,13 @@ class BuoyRecognitionNode(object):
         areas = [cv.contourArea(cnt) for cnt in contours]
         rgb = []
         hsv = []
-        kernel = np.ones((kernel_size, kernel_size), np.uint8)
-        # contours = [cv.convexHull(cnt) for cnt in contours] TODO add this again
+        dilate_kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        erode_kernel = np.ones((2*kernel_size, 2*kernel_size), np.uint8)
         for cnt in contours:
             mask = np.zeros(input_image.shape[:2], np.uint8)
             cv.drawContours(mask, [cnt], 0, 255, -1)
-            eroded_mask = cv.erode(mask, kernel, iterations=1)
+            dilated_mask = cv.dilate(mask, dilate_kernel, iterations=1)
+            eroded_mask = cv.erode(dilated_mask, erode_kernel, iterations=1)
             rgb_color = cv.mean(input_image, mask=eroded_mask)
             hsv_color = cv.mean(hsv_image, mask=eroded_mask)
             rgb.append(rgb_color[:3])
