@@ -58,14 +58,13 @@ class GameMasterNode(object):
         if task_state != self._current_task_state:
             self._current_task_state = task_state
             self._transition_to_state(task_name, task_state)
-
-        # rospy.loginfo("Task message received:")
-        # rospy.loginfo("  - Task name     : {}".format(task_name))
-        # rospy.loginfo("  - Task state    : {}".format(task_state))
-        # rospy.loginfo("  - Ready time    : {}".format(task_ready_time))
-        # rospy.loginfo("  - Running time  : {}".format(task_running_time))
-        # rospy.loginfo("  - Elapsed time  : {}".format(task_elapsed_time))
-        # rospy.loginfo("  - Current score : {:.2f}".format(task_current_score))
+            rospy.loginfo("Task message received:")
+            rospy.loginfo("  - Task name     : {}".format(task_name))
+            rospy.loginfo("  - Task state    : {}".format(task_state))
+            rospy.loginfo("  - Ready time    : {}".format(task_ready_time))
+            rospy.loginfo("  - Running time  : {}".format(task_running_time))
+            rospy.loginfo("  - Elapsed time  : {}".format(task_elapsed_time))
+        rospy.loginfo_throttle_identical(5.0, "Current task score : {:.2f}".format(task_current_score))
 
     def _instantiate_task_manager(self, task_name):
         if not self._task_manager_catalog.has_key(task_name):
