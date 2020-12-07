@@ -1,5 +1,5 @@
 <launch>
 	<node pkg="tij_engine_controller" type="tij_engine_controller.py" name="tij_engine_controller"
-	      respawn="true" output="screen" launch-prefix="xterm -e">
+	      respawn="true" output="screen" launch-prefix="">
 	</node>
 </launch>

@@ -13,7 +13,7 @@
 
   <!-- Kalman filter fusing imu and gps into combined odometry/tf -->
   <node ns="cora/robot_localization" pkg="robot_localization" type="ekf_localization_node"
-        name="ekf_localization" clear_params="false" respawn="true" output="screen" launch-prefix="xterm -e">
+        name="ekf_localization" clear_params="false" respawn="true" output="screen" launch-prefix="">
     <param name="sensor_timeout" value="2.0"/>
     <param name="two_d_mode" value="false"/>
     <param name="map_frame" value="map"/>
@@ -47,7 +47,7 @@
 
   <!-- Produces local odometry from GPS to be used in Kalman filter -->
   <node ns="cora/robot_localization" pkg="robot_localization" type="navsat_transform_node"
-        name="navsat_transform_node" respawn="true" output="screen" launch-prefix="xterm -e" >
+        name="navsat_transform_node" respawn="true" output="screen" launch-prefix="" >
     <param name="tf_prefix" value="cora" />
     <param name="frequency" value="60"/>
     <param name="magnetic_declination_radians" value="0"/>

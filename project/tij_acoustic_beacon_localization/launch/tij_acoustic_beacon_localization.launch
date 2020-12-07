@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-	<node pkg="tij_acoustic_beacon_localization" type="tij_acoustic_beacon_localization_node.py" name="tij_acoustic_beacon_localization_node" output="screen" respawn="true" launch-prefix="xterm -e">
+	<node pkg="tij_acoustic_beacon_localization" type="tij_acoustic_beacon_localization_node.py" name="tij_acoustic_beacon_localization_node" output="screen" respawn="true" launch-prefix="">
 	</node>
 </launch>
